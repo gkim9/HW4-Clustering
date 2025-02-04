@@ -1,7 +1,19 @@
+![BuildStatus](https://github.com/gkim9/HW4-Clustering/actions/workflows/test.yml/badge.svg?event=push)
+
 # Assignment 4
 Implementation of KMeans and Silhouette Scoring
 
 # Assignment
+
+## Description
+{Insert description of k-means clustering here}
+
+
+{Insert description of Silhouette score here}
+
+A plot with generated points with points with negative Silhouette scores marked is shown below. The color of the clusters are based on the initial generation, not of the fitted model. 
+![alt text](https://github.com/gkim9/HW4-Clustering//plot_with_neg_silhouette_score_marked.png)
+
 
 ## Overview
 The goal of this assignment is to implement the k-means clustering algorithm and the silhouette scoring metric. 
@@ -69,12 +81,12 @@ scores = silhouette.score(labels)
 ## Tasks
 * Note: we will check that you can run your code on a medium-size dataset
 
-[ TODO ] Complete the KMeans class with your implementation of the algorithm
+[x] Complete the KMeans class with your implementation of the algorithm
 
-  [ ] complete the `fit` method  
-  [ ] complete the `predict` method  
+  [x] complete the `fit` method  
+  [x] complete the `predict` method  
   [ ] complete the `get_error` method  
-  [ ] complete the `get_centroid` method  
+  [x] complete the `get_centroid` method  
 
 [ TODO ] Complete the Silhouette class with your implementation of the metric
   [ ] complete the `score` method  
