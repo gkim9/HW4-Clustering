@@ -1,7 +1,5 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from utils import make_clusters
-from kmeans import KMeans
 
 class Silhouette:
     def __init__(self):
@@ -10,7 +8,7 @@ class Silhouette:
             none
         """
 
-    def score(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def score(self, X: np.ndarray, y: np.ndarray, centroid_list=None) -> np.ndarray:
         """
         calculates the silhouette score for each of the observations
 
@@ -30,8 +28,8 @@ class Silhouette:
         (b - a) / max(a, b)
         where a is how far that sample is from other samples in the same cluster (on average)
         and b is how far the smallest mean distance to a different cluster
+         => meaning that b is the mean distance from that point to all other points in the cluster closest to it
         """
-
         # checking for input errors
         if type(X) != np.ndarray:
             raise TypeError("X must be a numpy array")
@@ -49,16 +47,23 @@ class Silhouette:
 
         for i in range(X.shape[0]):
             cluster_ix = y[i]
-            # print("X[i]:", X[i])
-            # print("X[y == cluster_ix]:", X[y == cluster_ix])
-            a = np.mean(cdist(X[y == cluster_ix], [X[i]]))
 
-            # print("--", cluster_ix, a)
-            dist_from_cluster = cdist([X[i]], X[y != cluster_ix])
+            # Calculating the average distance from the point of interest to other points in the same cluster
+            a = np.mean(cdist(X[y == cluster_ix], [X[i]], metric='euclidean'))
 
-            # print("----", dist_from_cluster)
-            b = np.min(dist_from_cluster)
+            # identifying the next closest cluster by calculating the distance between cluster and centroids
+            next_closest_cluster = cdist(centroid_list, [X[i]])
 
-            scores.append((b - a) / np.max([a, b]))
+            # replacing the point's actual cluster with +inf so that we can get the next minimum
+            next_closest_cluster[cluster_ix] = float("+inf")
+            next_cluster_ix = np.argmin(next_closest_cluster)
+
+            # calculating the distance from the point to all points in the next closest cluster
+            dist_from_cluster = cdist([X[i]], X[y == next_cluster_ix], metric='euclidean')
+            b = np.mean(dist_from_cluster)
+
+            # calculating score based on formula
+            score = (b - a) / np.max([a, b])
+            scores.append(score)
 
         return np.array(scores)

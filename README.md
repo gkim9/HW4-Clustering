@@ -6,13 +6,33 @@ Implementation of KMeans and Silhouette Scoring
 # Assignment
 
 ## Description
-{Insert description of k-means clustering here}
+### K-means clustering algorithm will group unlabeled data points into different "clusters" or labels.
+The points that are in proximity will be grouped to the same cluster.
 
+To implement this algorith, following steps are taken:
+1. Pick k random points from the dataset to be the "center" of each cluster
+2. Assign the rest of the points in the dataset to the closest center
+3. For the set of points in each cluster, calculate the average point
+4. The average now becomes the new center
+5. Steps 2-4 are repeated until the change in the center between iterations are smaller than a predefined amount or until the algorithm times out (user defined)
 
-{Insert description of Silhouette score here}
+One of the downsides of this clustering method comes with the variability of the results with the initial random center assignment. For example, if there are two centers in close vicinity to each other, what may seem like one cluster could be separated into two.
 
-A plot with generated points with points with negative Silhouette scores marked is shown below. The color of the clusters are based on the initial generation, not of the fitted model. 
-![alt text](https://github.com/gkim9/HW4-Clustering//plot_with_neg_silhouette_score_marked.png)
+### K-means++ is a way to initialize the initial centers that will enhance the quality and consistency of k-means clustering.
+The initialization chooses one random point as the center, and the subsequent centers are chosen with a non-uniform probability distribution. The probability distribution is correlated with the distance from the previously chosen center, meaning the further the points are from the previous center, the more likely it will be chosen to be the next center. 
+
+### Silhouette scoring
+Silhouette scoring can be utilized to determine how many clusters are necessary and adequate in labeling all data points in the dataset. Silhouette score for each point represents how close that point is to other points in that cluster (intra-cluster distance) vs. in the next nearest cluster (inter-cluster distance).
+
+The score is calculated using this formula:
+
+$\dfrac{b - a}{max(a, b)}$, where $a$ is the mean intra-cluster distance and $b$ is the mean inter-cluster distance to the next nearest cluster.
+
+The score ranges from -1 to 1, with a score of 1 representing the point is close to its cluster neighbors and far from others and score of -1 representing that the point is misclassified (closer to other cluster than its assignment).
+
+A graphical representation of the clusters is shown below. It contains information such as actual label of the points, predicted label of the points after running a k-means clustering algorithm, and the points' Silhouette scores.
+
+![alt text](figures/4clusters_scale1.png)
 
 
 ## Overview
@@ -132,7 +152,7 @@ m_clusters, m_labels = make_clusters(k=10)
 # here we are directly controlling the dimensionality of our data 
 #   1000 observations 
 #   200 features 
-#   3 clusters)
+#   3 clusters
 d_clusters, d_labels = make_clusters(n=1000, m=200, k=3)
 
 

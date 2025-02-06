@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from utils import make_clusters
+# from utils import make_clusters
 
 class KMeans:
-    def __init__(self, k: int, tol: float = 1e-6, max_iter: int = 100):
+    def __init__(self, k: int, tol: float = 1e-9, max_iter: int = 500):
         """
         In this method you should initialize whatever attributes will be required for the class.
 
@@ -20,6 +20,7 @@ class KMeans:
             max_iter: int
                 the maximum number of iterations before quitting model fit
         """
+        # initializing attributes --> raising errors if input values are not of expected type or value
         if type(k) == int:
             if k > 0:
                 self.num_centroid = k
@@ -51,6 +52,40 @@ class KMeans:
         self.closest_centroid_mat = None
         self.error = None
 
+    def initialize_centroids(self, mat: np.ndarray):
+        '''
+        Implementing kmeans++
+        Choosing the centroids by:
+        1.  Picking ONE random point to be the center of one of the clusters
+        2.  For each point not equal to cluster center, calculate distance to X
+        3.  Use the distances calculated to make a weighted probability distribution
+            where the next point chosen follows the probability distribution of D(x)^2
+        4.  Repeat 2 + 3 until k centers have been chosen
+        '''
+
+        # Randomly picking one point and adding it to the dictionary of centroids
+        initial_centroids = {0: mat[np.random.randint(0, mat.shape[0], size=1)]}
+
+        # to choose the other centroids (starting from 1 since we already picked one centroid)
+        for centroid_num in range(1, self.num_centroid):
+            # converting the centroids dictionary to an array containing the k-centroid values
+            centroid_array = np.vstack([val for val in initial_centroids.values()]) 
+            # calculate the distance to the nearest centroid
+            dist = cdist(mat, centroid_array)
+            
+            # getting the minimum distance to any of the centroids for each point
+            distances = np.min(cdist(mat, centroid_array), axis=1)**2
+
+            # smaller the distance to an existing centroid, the lower the probability of being chosen
+            probability = distances/distances.sum()
+
+            next_centroid = mat[np.random.choice(mat.shape[0], p = probability)]
+
+            # adding the chosen centroid to the list
+            initial_centroids[centroid_num] = next_centroid
+
+        return initial_centroids
+    
     def fit(self, mat: np.ndarray):
         """
         Fits the kmeans algorithm onto a provided 2D matrix.
@@ -83,50 +118,42 @@ class KMeans:
         2. For each point in the dataset, assign it to the nearest centroid
         3. Update the centroid to be the mean of all the points assigned to it (m_1 for first iteration)
         4. Repeat steps 2 and 3 until the centroids do not change by more than epsilon (until m_i - m_{i-1} < epsilon)
-        
         '''
         
-        self.max_iter = 100
-
-        # randomly initialize k cluster centroids from points in the dataset# initialize the centroids dictionary with random points from the dataset
-        self.centroids = {centroid_index: mat[np.random.randint(0, mat.shape[0], size=1)] for centroid_index in range(self.num_centroid)} 
-        print(self.centroids)
+        # randomly initialize k cluster centroids from points in the dataset using kmeans++ approach
+        self.centroids = self.initialize_centroids(mat)
         
         for _ in range(self.max_iter): # only run the loop for a maximum of max_iter times
-            print(self.centroids)
              # initialize the new centroid dictionary with empty lists that will be updated with the new centroids
             self.new_centroids = {centroid_index: mat[np.random.randint(0, mat.shape[0], size=1)] for centroid_index in range(self.num_centroid)} 
             
-            centroid_array = np.vstack([val for val in self.centroids.values()]) # converting the centroids dictionary to an array containing the k-centroid values
-            # print(centroid_array)
-            distances = cdist(mat, centroid_array) # will return a list of distances between the point of interest in the dataset and all the centroids
-            # print("Distances:", distances)
+            # converting the centroids dictionary to an array containing the k-centroid values
+            centroid_array = np.vstack([val for val in self.centroids.values()]) 
+
+            # will return a list of distances between the point of interest in the dataset and all the centroids
+            distances = cdist(mat, centroid_array)
 
             # find the closest centroid for the current point
             closest_centroid = np.argmin(distances, axis=1)
 
             # saving the 1D matrix of the cluster designation into the "closest_centroid_mat" attribute to access in the predict function
             self.closest_centroid_mat = closest_centroid
-            # print("Closest Centroid:", closest_centroid)
 
             # update the new_centroids to be the mean of all the points assigned to it
             for i in range(self.num_centroid):
                 self.new_centroids[i] = np.mean(mat[closest_centroid == i], axis=0)
-                new_centroid_array = np.vstack([val for val in self.new_centroids.values()]) # converting the new centroids dictionary to an array containing the k-centroid values
-                print("NEW:", new_centroid_array)
-                # print("New Centroids:", self.centroids)
+                # converting the new centroids dictionary to an array containing the k-centroid values
+                new_centroid_array = np.vstack([val for val in self.new_centroids.values()]) 
             
             # calculating difference between m_i and m_{i-1}
-            difference = np.sum(centroid_array - new_centroid_array) 
+            difference = np.sum(centroid_array - new_centroid_array)
 
             # if the diff between m_i and m_{i-1} is less than tolerance given, save m_i as centroids and break from loop
             if difference < self.tolerance:
-                print(_)
-                # print("diff < tolerance")
                 self.centroids = self.new_centroids
                 break
 
-            # if it did not "converge", then repeat by replacing m_i as the old centroid to compute m_{i+1}
+            # if it did not "converge" yet, then repeat by replacing m_i as the old centroid to compute m_{i+1}
             self.centroids = self.new_centroids
 
     def predict(self, mat: np.ndarray) -> np.ndarray:
@@ -158,12 +185,12 @@ class KMeans:
             raise ValueError("The number of features in mat must be the same as the number of features in the centroids")
         
         # making sure the matrix that the fit function was called on is the same as the matrix provided in the predict function
+        if len(self.mat) != len(mat):
+            raise ValueError("The matrix provided must be the same as the matrix used in the fit function")
         if (self.mat != mat).all():
             raise ValueError("The matrix provided must be the same as the matrix used in the fit function")
 
         return self.closest_centroid_mat
-
-        # return cluster_label
 
     def get_error(self) -> float:
         """
@@ -192,7 +219,7 @@ class KMeans:
             error = np.sum(distances[point_ix, cluster_ix]**2)
             sum_error += error
 
-        self.error = sum_error
+        self.error = sum_error/len(self.mat)
         return self.error
 
 
@@ -209,18 +236,3 @@ class KMeans:
 
         
         return centroid_array
-
-
-
-mat, labels = make_clusters()
-mat2, labels2 = make_clusters(seed=30)
-# print(mat)
-K = KMeans(k = 3)
-print(K.fit(mat=mat))
-# print(K.get_centroids())
-print(K.predict(mat))
-# print(mat)
-print(K.get_error())
-
-val = cdist([[0, 0], [1, 1]], [[1, 1], [2, 2]], 'sqeuclidean')
-print(val)

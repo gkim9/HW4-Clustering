@@ -76,9 +76,9 @@ def plot_with_number(
         labels: np.ndarray,
         filename: str =None
     ):
-    plt.figure(figsize=(5,5), dpi=200)
+    plt.figure(figsize=(3,3), dpi=200)
     N = len(mat)
-    plt.scatter(mat[:,0], mat[:,1], c=labels)
+    plt.scatter(mat[:,0], mat[:,1], c=labels, s=4)
     bad_score = [169, 170, 171, 173, 174, 177, 179, 180, 188, 193, 197, 202, 203, 205, 206, 207, 211, 216, 217, 218, 221, 226, 227, 231, 232, 235, 239, 242, 243, 244, 247, 248, 253, 255, 257, 258, 259, 260, 265, 269, 271, 273, 276, 277, 278, 279, 282, 285, 288, 292, 298, 300, 301, 308, 309, 310, 311, 316, 319, 327, 329, 334, 339, 344, 345, 348, 349, 350, 351, 359, 365, 370, 371, 374, 377, 378, 379, 380, 390, 394, 395, 396, 397, 399, 400, 403, 404, 406, 407, 409, 410, 415, 417, 420, 421, 424, 431, 432, 434, 438, 439, 441, 443, 448, 449, 450, 454, 455, 456, 465, 467, 470, 472, 476, 477, 479, 480, 490, 494, 496, 497, 499]
     for i in range(mat.shape[0]):
         if i in bad_score:
@@ -134,6 +134,3 @@ def plot_multipanel(
         plt.savefig(filename)
     else:
         plt.show()
-
-# mat, labels = make_clusters()
-# plot_with_number(mat, labels, "plot_with_neg_silhouette_score_marked.png")

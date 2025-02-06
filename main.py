@@ -4,7 +4,8 @@ from cluster import (
         Silhouette, 
         make_clusters,
         plot_clusters,
-        plot_multipanel)
+        plot_multipanel,
+        )
 
 
 def main():
@@ -20,12 +21,14 @@ def main():
     """
     uncomment this section once you are ready to visualize your kmeans + silhouette implementation
     """
-    # clusters, labels = make_clusters(k=4, scale=1)
-    # km = KMeans(k=4)
+    # k = 4
+    # clusters, labels = make_clusters(n=500, k=k, scale=1, seed = 42)
+    # km = KMeans(k=k)
     # km.fit(clusters)
     # pred = km.predict(clusters)
-    # scores = Silhouette().score(clusters, pred)
-    # plot_multipanel(clusters, labels, pred, scores)
+    # centroid_list = km.get_centroids()
+    # scores = Silhouette().score(clusters, pred, centroid_list)
+    # plot_multipanel(clusters, labels, pred, scores, filename="4clusters_scale1")
     
 
 if __name__ == "__main__":
