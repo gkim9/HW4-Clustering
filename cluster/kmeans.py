@@ -52,7 +52,7 @@ class KMeans:
         self.closest_centroid_mat = None
         self.error = None
 
-    def initialize_centroids(self, mat: np.ndarray):
+    def _initialize_centroids(self, mat: np.ndarray):
         '''
         Implementing kmeans++
         Choosing the centroids by:
@@ -121,7 +121,7 @@ class KMeans:
         '''
         
         # randomly initialize k cluster centroids from points in the dataset using kmeans++ approach
-        self.centroids = self.initialize_centroids(mat)
+        self.centroids = self._initialize_centroids(mat)
         
         for _ in range(self.max_iter): # only run the loop for a maximum of max_iter times
              # initialize the new centroid dictionary with empty lists that will be updated with the new centroids
