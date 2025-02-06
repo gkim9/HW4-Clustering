@@ -208,7 +208,6 @@ class KMeans:
         centroid_array = np.vstack([val for val in self.centroids.values()]) # converting the centroids dictionary to an array containing the k-centroid values
 
         # calculate the distance between the points in the dataset and the centroids
-        # using sqeuclidean distance metric to compute the squared euclidean distance between the two points
         distances = cdist(self.mat, centroid_array)
         sum_error = 0
 
@@ -234,5 +233,4 @@ class KMeans:
         # converting the centroids dictionary to a 'k x m' matrix containing cluster centroids
         centroid_array = np.vstack([val for val in self.centroids.values()])
 
-        
         return centroid_array
